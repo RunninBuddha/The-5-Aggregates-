@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Five Aggregates — Skandha Wheel</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#1a1a2e;color:#e0e0e0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh}
+#root{display:flex;flex-direction:column;align-items:center;padding:2rem 1rem;gap:1.5rem}
+h1{font-size:18px;font-weight:500;color:#e0e0e0;letter-spacing:.04em;text-align:center}
+h1 span{display:block;font-size:12px;color:#888;font-weight:400;margin-top:4px;letter-spacing:.06em}
+
+#how-to{width:100%;max-width:520px;border:0.5px solid #333;border-radius:12px;overflow:hidden}
+#how-to-toggle{width:100%;background:#222;border:none;cursor:pointer;padding:.625rem 1rem;font-size:12px;font-weight:500;color:#aaa;text-align:left;display:flex;justify-content:space-between;align-items:center}
+#how-to-toggle:hover{color:#e0e0e0}
+#how-to-body{display:none;background:#1e1e2e;padding:.75rem 1rem;border-top:0.5px solid #333}
+#how-to-body.open{display:block}
+#how-to-body ol{padding-left:1.25rem;font-size:12px;color:#bbb;line-height:2.1}
+#how-to-body ol li{margin-bottom:2px}
+#how-to-body ol strong{color:#e0e0e0}
+#how-to-body .note{font-size:11px;color:#888;margin-top:.625rem;line-height:1.7;padding:6px 8px;border-left:2px solid #444}
+
+#flower{position:relative;width:560px;height:560px;flex-shrink:0}
+canvas.wheel{border-radius:50%;cursor:grab;display:block;touch-action:none;position:absolute}
+canvas.wheel:active{cursor:grabbing}
+.agg-label{position:absolute;display:flex;flex-direction:column;align-items:center;gap:2px;pointer-events:none}
+.agg-label .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin:0 auto}
+.agg-label .en{font-size:11px;font-weight:500;color:#e0e0e0;white-space:nowrap;line-height:1.2;text-align:center}
+.agg-label .sk{font-size:9.5px;color:#888;white-space:nowrap;line-height:1.2;text-align:center}
+
+#setup-panel{width:100%;max-width:520px;background:#222;border-radius:12px;border:0.5px solid #333;padding:1rem 1.25rem}
+#setup-panel h3{font-size:14px;font-weight:500;color:#e0e0e0;margin-bottom:.75rem}
+.agg-inputs{display:none}
+.agg-inputs.active{display:block}
+.tab-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:.75rem}
+.tab-btn{font-size:11px;padding:4px 10px;border-radius:20px;border:0.5px solid #444;background:transparent;cursor:pointer;color:#aaa}
+.tab-btn:hover{color:#e0e0e0;border-color:#666}
+.tab-btn.active{background:#1a1a2e;color:#e0e0e0;border-color:#666}
+.slice-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:.75rem}
+.slice-input-wrap{display:flex;flex-direction:column;gap:2px}
+.slice-input-wrap label{font-size:10px;color:#666}
+.slice-input-wrap input{font-size:12px;padding:4px 6px;border:0.5px solid #333;border-radius:6px;background:#1a1a2e;color:#e0e0e0;width:100%}
+.slice-input-wrap input:focus{outline:none;border-color:#666}
+.slice-input-wrap input::placeholder{color:#444}
+.ex-toggle{font-size:11px;color:#6a9fd8;cursor:pointer;background:none;border:none;padding:0;margin-bottom:.5rem;display:block}
+.ex-toggle:hover{text-decoration:underline}
+.ex-box{display:none;background:#1a1a2e;border:0.5px solid #333;border-radius:8px;padding:.5rem .75rem;margin-bottom:.5rem;font-size:11px;color:#aaa;line-height:2}
+.ex-box.show{display:block}
+.ex-box span{cursor:pointer;color:#6a9fd8;margin-right:8px}
+.ex-box span:hover{text-decoration:underline}
+.clear-btn{font-size:11px;padding:4px 12px;border-radius:20px;border:0.5px solid #333;background:transparent;cursor:pointer;color:#666;margin-top:2px}
+.clear-btn:hover{color:#e0e0e0;border-color:#666}
+
+#instr{width:100%;max-width:520px;font-size:12px;color:#666;text-align:center;line-height:1.6}
+
+@media(max-width:600px){
+  #flower{width:340px;height:340px}
+}
+</style>
+</head>
+<body>
+<div id="root">
+
+<h1>Five Aggregates <span>Skandha Wheel — Moment of Consciousness</span></h1>
+
+<div id="how-to">
+  <button id="how-to-toggle">How to use this tool <span id="arrow">▾</span></button>
+  <div id="how-to-body">
+    <ol>
+      <li>Select an aggregate tab below the wheels — <strong>Form, Feeling, Perception, Mental Formations,</strong> or <strong>Consciousness</strong></li>
+      <li>Each wheel has 9 slices grouped into three zones: <strong>pleasant, neutral,</strong> and <strong>unpleasant</strong></li>
+      <li>Label each slice with a word that describes a state of that aggregate. You may use the example words provided — tap <strong>show examples</strong> to see them</li>
+      <li>To correct a label: click into any filled box and retype or delete</li>
+      <li>To start a wheel over: tap <strong>Clear all slices</strong> at the bottom of that tab</li>
+      <li>Once your slices are labeled, drag any wheel to spin it — fast or slow, either direction</li>
+      <li>The glowing slice pointing inward toward the center shows your current state for that aggregate</li>
+    </ol>
+    <p class="note">Your labels and wheel positions are saved automatically in your browser and will be here when you return. Note: clearing your browser data or opening this on a different device will reset your labels.</p>
+  </div>
+</div>
+
+<div id="flower"></div>
+
+<div id="setup-panel">
+  <h3>Label your slices</h3>
+  <div class="tab-row" id="tab-row"></div>
+  <div id="input-sections"></div>
+</div>
+
+<div id="instr">Drag any wheel to spin it. The glowing slice pointing inward shows your current state for that aggregate.</div>
+
+</div>
+
+<script>
+const AGGREGATES=[
+  {id:'rupa',     en:'Form',             sk:'Rūpa',     dot:'#C4724A', zones:['#8B3A1A','#C4724A','#E8A882']},
+  {id:'vedana',   en:'Feeling',          sk:'Vedanā',   dot:'#C08820', zones:['#7A4800','#C08820','#ECC060']},
+  {id:'samjna',   en:'Perception',       sk:'Saṃjñā',  dot:'#2A6090', zones:['#0A3060','#2A6090','#70A8D0']},
+  {id:'samskara', en:'Mental Formations',sk:'Saṃskāra',dot:'#2A7040', zones:['#0A3818','#2A7040','#68B878']},
+  {id:'vijnana',  en:'Consciousness',    sk:'Vijñāna', dot:'#5A3890', zones:['#2A1050','#5A3890','#9878C8']}
+];
+
+const EXAMPLES={
+  rupa:    ['energized','strong','rested','unremarkable','ordinary','still','tired','in pain','depleted'],
+  vedana:  ['joyful','content','grateful','flat','indifferent','calm','irritated','agitated','grieving'],
+  samjna:  ['clear-headed','focused','certain','monitoring','questioning','open','confused','distorted','deceived'],
+  samskara:['patient','generous','compassionate','pausing','observing','undecided','reactive','defensive','resentful'],
+  vijnana: ['present','attentive','awake','witnessing','dull','functional','scattered','fragmented','separated']
+};
+
+const SLICES=9;
+const R=78;
+const DIAM=R*2;
+const CX=R;
+const CY=R;
+const FC=280;
+const PD=133;
+const LABEL_DIST=PD+R+22;
+
+const POSITIONS=[
+  {angle:-90},{angle:-18},{angle:54},{angle:126},{angle:198}
+];
+
+let state={};
+let rotations={};
+let velocity={};
+let dragging={};
+let rafId={};
+
+function zoneFor(i){return i<3?2:i<6?1:0;}
+
+function lighten(hex,amt){
+  let r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+  r=Math.min(255,Math.round(r+(255-r)*amt));
+  g=Math.min(255,Math.round(g+(255-g)*amt));
+  b=Math.min(255,Math.round(b+(255-b)*amt));
+  return '#'+[r,g,b].map(v=>v.toString(16).padStart(2,'0')).join('');
+}
+
+// localStorage-based persistence (works in standalone HTML, unlike window.storage)
+function lsGet(key){try{return localStorage.getItem(key);}catch(e){return null;}}
+function lsSet(key,val){try{localStorage.setItem(key,val);}catch(e){}}
+
+function loadState(){
+  for(const agg of AGGREGATES){
+    try{const r=lsGet('ska_labels_'+agg.id);state[agg.id]=r?JSON.parse(r):Array(SLICES).fill('');}
+    catch(e){state[agg.id]=Array(SLICES).fill('');}
+    try{const r=lsGet('ska_rot_'+agg.id);rotations[agg.id]=r?parseFloat(r):0;}
+    catch(e){rotations[agg.id]=0;}
+    velocity[agg.id]=0;
+  }
+}
+function saveLabels(id){lsSet('ska_labels_'+id,JSON.stringify(state[id]));}
+function saveRotation(id){lsSet('ska_rot_'+id,String(rotations[id]));}
+
+function drawWheel(canvas,aggId,petalAngleDeg){
+  const agg=AGGREGATES.find(a=>a.id===aggId);
+  const ctx=canvas.getContext('2d');
+  ctx.clearRect(0,0,DIAM,DIAM);
+  const rot=rotations[aggId]||0;
+  const sliceAngle=(2*Math.PI)/SLICES;
+  const inwardRad=(petalAngleDeg+180)*Math.PI/180;
+
+  for(let i=0;i<SLICES;i++){
+    const start=rot+i*sliceAngle-Math.PI/2;
+    const end=start+sliceAngle;
+    const mid=rot+(i+0.5)*sliceAngle-Math.PI/2;
+    let diff=((mid-inwardRad)%(2*Math.PI)+2*Math.PI)%(2*Math.PI);
+    if(diff>Math.PI)diff=2*Math.PI-diff;
+    const isActive=diff<sliceAngle*0.55;
+    const baseColor=agg.zones[zoneFor(i)];
+    const fillColor=isActive?lighten(baseColor,0.38):baseColor;
+
+    ctx.beginPath();
+    ctx.moveTo(CX,CY);
+    ctx.arc(CX,CY,R,start,end);
+    ctx.closePath();
+    ctx.fillStyle=fillColor;
+    ctx.fill();
+    ctx.strokeStyle='rgba(255,255,255,0.15)';
+    ctx.lineWidth=0.7;
+    ctx.stroke();
+
+    if(isActive){
+      ctx.beginPath();
+      ctx.moveTo(CX,CY);
+      ctx.arc(CX,CY,R,start,end);
+      ctx.closePath();
+      ctx.strokeStyle='rgba(255,255,255,0.6)';
+      ctx.lineWidth=2;
+      ctx.stroke();
+    }
+
+    const label=(state[aggId]||[])[i]||'';
+    if(label){
+      const lx=CX+Math.cos(mid)*(R*0.60);
+      const ly=CY+Math.sin(mid)*(R*0.60);
+      ctx.save();
+      ctx.translate(lx,ly);
+      ctx.rotate(mid+Math.PI/2);
+      ctx.fillStyle='rgba(255,255,255,0.93)';
+      ctx.font='500 8.5px -apple-system,sans-serif';
+      ctx.textAlign='center';
+      ctx.textBaseline='middle';
+      ctx.fillText(label.length>11?label.slice(0,11):label,0,0);
+      ctx.restore();
+    }
+
+    const tx1=CX+Math.cos(mid)*(R-5);
+    const ty1=CY+Math.sin(mid)*(R-5);
+    const tx2=CX+Math.cos(mid)*(R+1);
+    const ty2=CY+Math.sin(mid)*(R+1);
+    ctx.beginPath();
+    ctx.moveTo(tx1,ty1);
+    ctx.lineTo(tx2,ty2);
+    ctx.strokeStyle=isActive?'rgba(255,255,255,0.95)':'rgba(255,255,255,0.28)';
+    ctx.lineWidth=isActive?2.5:1;
+    ctx.stroke();
+  }
+}
+
+function drawAll(){
+  document.querySelectorAll('canvas.wheel').forEach(c=>{
+    drawWheel(c,c.dataset.id,parseFloat(c.dataset.pangle));
+  });
+}
+
+function buildFlower(){
+  const flower=document.getElementById('flower');
+  AGGREGATES.forEach((agg,i)=>{
+    const pos=POSITIONS[i];
+    const rad=pos.angle*Math.PI/180;
+    const wheelX=FC+Math.cos(rad)*PD-R;
+    const wheelY=FC+Math.sin(rad)*PD-R;
+
+    const canvas=document.createElement('canvas');
+    canvas.className='wheel';
+    canvas.width=DIAM;
+    canvas.height=DIAM;
+    canvas.dataset.id=agg.id;
+    canvas.dataset.pangle=pos.angle;
+    canvas.style.left=wheelX+'px';
+    canvas.style.top=wheelY+'px';
+    flower.appendChild(canvas);
+    setupDrag(canvas,agg.id);
+
+    const labelEl=document.createElement('div');
+    labelEl.className='agg-label';
+    const dot=document.createElement('div');
+    dot.className='dot';
+    dot.style.background=agg.dot;
+    const en=document.createElement('div');
+    en.className='en';
+    en.textContent=agg.en;
+    const sk=document.createElement('div');
+    sk.className='sk';
+    sk.textContent=agg.sk;
+    labelEl.appendChild(dot);
+    labelEl.appendChild(en);
+    labelEl.appendChild(sk);
+    const lx=FC+Math.cos(rad)*LABEL_DIST;
+    const ly=FC+Math.sin(rad)*LABEL_DIST;
+    labelEl.style.left=lx+'px';
+    labelEl.style.top=ly+'px';
+    labelEl.style.transform='translate(-50%,-50%)';
+    flower.appendChild(labelEl);
+  });
+}
+
+function setupDrag(canvas,id){
+  function getAngle(e){
+    const rect=canvas.getBoundingClientRect();
+    const cx=rect.left+rect.width/2;
+    const cy=rect.top+rect.height/2;
+    const ex=e.touches?e.touches[0].clientX:e.clientX;
+    const ey=e.touches?e.touches[0].clientY:e.clientY;
+    return Math.atan2(ey-cy,ex-cx);
+  }
+  let prevAngle=0,prevTime=0;
+  function onStart(e){
+    e.preventDefault();
+    dragging[id]=true;
+    prevAngle=getAngle(e);
+    prevTime=Date.now();
+    velocity[id]=0;
+    if(rafId[id]){cancelAnimationFrame(rafId[id]);rafId[id]=null;}
+  }
+  function onMove(e){
+    if(!dragging[id])return;
+    e.preventDefault();
+    const a=getAngle(e);
+    const dt=Math.max(Date.now()-prevTime,1);
+    let d=a-prevAngle;
+    if(d>Math.PI)d-=2*Math.PI;
+    if(d<-Math.PI)d+=2*Math.PI;
+    velocity[id]=d/dt*16;
+    rotations[id]=(rotations[id]||0)+d;
+    prevAngle=a;prevTime=Date.now();
+    drawAll();
+  }
+  function onEnd(){
+    if(!dragging[id])return;
+    dragging[id]=false;
+    inertia(id);
+  }
+  canvas.addEventListener('mousedown',onStart);
+  window.addEventListener('mousemove',onMove);
+  window.addEventListener('mouseup',onEnd);
+  canvas.addEventListener('touchstart',onStart,{passive:false});
+  window.addEventListener('touchmove',onMove,{passive:false});
+  window.addEventListener('touchend',onEnd);
+}
+
+function inertia(id){
+  function step(){
+    if(Math.abs(velocity[id])<0.0008){saveRotation(id);return;}
+    rotations[id]+=velocity[id];
+    velocity[id]*=0.93;
+    drawAll();
+    rafId[id]=requestAnimationFrame(step);
+  }
+  rafId[id]=requestAnimationFrame(step);
+}
+
+function clearWheel(id){
+  state[id]=Array(SLICES).fill('');
+  saveLabels(id);
+  document.querySelectorAll('#inp-'+id+' input').forEach(inp=>inp.value='');
+  drawAll();
+}
+
+function buildSetupPanel(){
+  const tabRow=document.getElementById('tab-row');
+  const sections=document.getElementById('input-sections');
+  const zoneNames=['pleasant','pleasant','pleasant','neutral','neutral','neutral','unpleasant','unpleasant','unpleasant'];
+
+  AGGREGATES.forEach((agg,i)=>{
+    const btn=document.createElement('button');
+    btn.className='tab-btn'+(i===0?' active':'');
+    btn.textContent=agg.en;
+    btn.onclick=()=>{
+      document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+      document.querySelectorAll('.agg-inputs').forEach(s=>s.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('inp-'+agg.id).classList.add('active');
+    };
+    tabRow.appendChild(btn);
+
+    const sec=document.createElement('div');
+    sec.className='agg-inputs'+(i===0?' active':'');
+    sec.id='inp-'+agg.id;
+
+    const exBtn=document.createElement('button');
+    exBtn.className='ex-toggle';
+    exBtn.textContent='show examples ▾';
+    const exBox=document.createElement('div');
+    exBox.className='ex-box';
+    const shuffled=[...EXAMPLES[agg.id]].sort(()=>Math.random()-0.5);
+    shuffled.forEach(ex=>{
+      const s=document.createElement('span');
+      s.textContent=ex;
+      s.onclick=()=>{
+        const inputs=sec.querySelectorAll('input');
+        for(const inp of inputs){
+          if(!inp.value){inp.value=ex;state[agg.id][parseInt(inp.dataset.idx)]=ex;saveLabels(agg.id);drawAll();break;}
+        }
+      };
+      exBox.appendChild(s);
+    });
+    exBtn.onclick=()=>{
+      exBox.classList.toggle('show');
+      exBtn.textContent=exBox.classList.contains('show')?'hide examples ▴':'show examples ▾';
+    };
+
+    const grid=document.createElement('div');
+    grid.className='slice-grid';
+    for(let s=0;s<SLICES;s++){
+      const wrap=document.createElement('div');
+      wrap.className='slice-input-wrap';
+      const lbl=document.createElement('label');
+      lbl.textContent='slice '+(s+1)+' · '+zoneNames[s];
+      const inp=document.createElement('input');
+      inp.type='text';
+      inp.placeholder='your word';
+      inp.dataset.idx=s;
+      inp.value=state[agg.id][s]||'';
+      inp.oninput=()=>{state[agg.id][s]=inp.value;saveLabels(agg.id);drawAll();};
+      wrap.appendChild(lbl);wrap.appendChild(inp);
+      grid.appendChild(wrap);
+    }
+
+    const clearBtn=document.createElement('button');
+    clearBtn.className='clear-btn';
+    clearBtn.textContent='Clear all slices';
+    clearBtn.onclick=()=>{if(confirm('Clear all labels for '+agg.en+'?'))clearWheel(agg.id);};
+
+    sec.appendChild(exBtn);
+    sec.appendChild(exBox);
+    sec.appendChild(grid);
+    sec.appendChild(clearBtn);
+    sections.appendChild(sec);
+  });
+
+  document.getElementById('how-to-toggle').onclick=()=>{
+    const body=document.getElementById('how-to-body');
+    const arrow=document.getElementById('arrow');
+    body.classList.toggle('open');
+    arrow.textContent=body.classList.contains('open')?'▴':'▾';
+  };
+}
+
+function init(){
+  loadState();
+  buildFlower();
+  buildSetupPanel();
+  drawAll();
+}
+init();
+</script>
+</body>
+</html>
